@@ -19,3 +19,9 @@ class LoginView(generics.GenericAPIView):
         serializer.is_valid(raise_exception = True)
         token = serializer.validated_data # validate()의 리턴값인 token 받아오기
         return Response({"token": token.key}, status = status.HTTP_200_OK)
+
+
+class LogoutView(generics.GenericAPIView):
+    def get(self, request, format = None):
+        request.user.auth_token.delete()
+        return Response(status = status.HTTP_200_OK)
