@@ -6,6 +6,7 @@ from rest_framework import serializers
 from rest_framework.authtoken.models import Token # Token 모델
 from rest_framework.validators import UniqueValidator # 이메일 중복 방지를 위한 검증 도구
 
+from django.contrib.auth import authenticate # DefautlAuthBackend인 TokenAuth 방식으로 유저 인증
 
 # 회원가입
 class SignUpSerializer(serializers.ModelSerializer):
@@ -41,5 +42,19 @@ class SignUpSerializer(serializers.ModelSerializer):
         # 유저 생성 및 토큰 생성
         user.set_password(validated_data['password'])
         user.save()
-        token = Token.objects.create(user = user)
         return user
+
+
+# 로그인
+class LoginSerializer(serializers.Serializer):
+    username = serializers.CharField(required = True)
+    password = serializers.CharField(required = True, write_only = True)
+    # write_only=True 옵션을 통해 클라이언트 -> 서버의 역직렬화는 가능하지만, 서버 -> 클라이언트 방향의 직렬화는 불가능하게 함
+
+    def validate(self, data):
+        user = authenticate(**data)
+        if user:
+            token, is_created = Token.objects.get_or_create(user = user)
+            return token
+        raise serializers.ValidationError( # 가입된 유저가 없을 경우
+            {"error": "Unable to log in with provided credentials."})
