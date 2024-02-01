@@ -42,7 +42,6 @@ class SignUpSerializer(serializers.ModelSerializer):
         # 유저 생성 및 토큰 생성
         user.set_password(validated_data['password'])
         user.save()
-        token = Token.objects.create(user = user)
         return user
 
 
@@ -55,7 +54,7 @@ class LoginSerializer(serializers.Serializer):
     def validate(self, data):
         user = authenticate(**data)
         if user:
-            token = Token.objects.get(user = user)
+            token, is_created = Token.objects.get_or_create(user = user)
             return token
         raise serializers.ValidationError( # 가입된 유저가 없을 경우
             {"error": "Unable to log in with provided credentials."})
