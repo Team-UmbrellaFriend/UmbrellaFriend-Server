@@ -4,7 +4,9 @@ from django.contrib.auth.models import User
 from rest_framework import generics, status
 from rest_framework.response import Response
 
-from .serializers import SignUpSerializer, LoginSerializer
+from .serializers import SignUpSerializer, LoginSerializer, ProfileSerializer
+from .models import Profile
+from .permissions import CustomReadOnly
 
 class SignUpView(generics.CreateAPIView):
     queryset = User.objects.all()
@@ -25,3 +27,9 @@ class LogoutView(generics.GenericAPIView):
     def get(self, request, format = None):
         request.user.auth_token.delete()
         return Response(status = status.HTTP_200_OK)
+
+
+class ProfileView(generics.RetrieveUpdateAPIView):
+    queryset = Profile.objects.all()
+    serializer_class = ProfileSerializer
+    permission_classes = [CustomReadOnly]
