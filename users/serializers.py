@@ -7,6 +7,16 @@ from rest_framework.authtoken.models import Token # Token 모델
 from rest_framework.validators import UniqueValidator # 이메일 중복 방지를 위한 검증 도구
 
 from django.contrib.auth import authenticate # DefautlAuthBackend인 TokenAuth 방식으로 유저 인증
+from .models import Profile
+
+
+# 프로필
+class ProfileSerializer(serializers.ModelSerializer):
+    user_id = serializers.CharField(source = 'user.id', read_only = True)
+    class Meta:
+        model = Profile
+        fields = ("user_id", "studentID", "studentCard", "phoneNumber")
+
 
 # 회원가입
 class SignUpSerializer(serializers.ModelSerializer):
@@ -23,10 +33,11 @@ class SignUpSerializer(serializers.ModelSerializer):
         write_only = True,
         required = True,
     )
+    profile = ProfileSerializer()
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'password', 'password2')
+        fields = ('id', 'username', 'email', 'password', 'password2', 'profile')
 
     def validate(self, data):
         if (data['password'] != data['password2']):
@@ -42,17 +53,29 @@ class SignUpSerializer(serializers.ModelSerializer):
         # 유저 생성 및 토큰 생성
         user.set_password(validated_data['password'])
         user.save()
+
+        # 프로필 정보 생성
+        profile_data = validated_data.get('profile', {})
+        Profile.objects.create(
+            user = user,
+            studentID = profile_data.get('studentID'),
+            studentCard = profile_data.get('studentCard', None),
+            phoneNumber = profile_data.get('phoneNumber', None),
+        )
         return user
 
 
 # 로그인
 class LoginSerializer(serializers.Serializer):
-    username = serializers.CharField(required = True)
-    password = serializers.CharField(required = True, write_only = True)
+    studentID = serializers.IntegerField(required=True)
+    password = serializers.CharField(required=True, write_only=True)
     # write_only=True 옵션을 통해 클라이언트 -> 서버의 역직렬화는 가능하지만, 서버 -> 클라이언트 방향의 직렬화는 불가능하게 함
 
     def validate(self, data):
-        user = authenticate(**data)
+        studentID = data.get('studentID')
+        password = data.get('password')
+
+        user = authenticate(studentID = studentID, password = password)
         if user:
             token, is_created = Token.objects.get_or_create(user = user)
             return token
