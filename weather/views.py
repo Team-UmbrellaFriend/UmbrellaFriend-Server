@@ -6,7 +6,7 @@ from rest_framework import status
 import requests, json
 
 
-def load_api_key(filename="../secrets.json"):
+def load_api_key(filename="secrets.json"):
     try:
         with open(filename, "r") as file:
             secrets = json.load(file)
