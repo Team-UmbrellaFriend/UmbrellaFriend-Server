@@ -3,6 +3,7 @@ from urllib.parse import urlencode
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
+from datetime import datetime
 import requests, json
 
 
@@ -28,7 +29,7 @@ def get_rain_percent(request):
         "pageNo": 1,
         "numOfRows": 10,
         "dataType": "JSON",
-        "base_date": "20240207",
+        "base_date": datetime.today().strftime("%Y%m%d"),
         "base_time": "0500",
         "nx": 60,   # 청파동 위치 좌표 (nx, ny)
         "ny": 125,
