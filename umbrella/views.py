@@ -1,15 +1,11 @@
 #umbrella/views.py
-from rest_framework import viewsets, status
+from rest_framework import generics, status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from django.contrib.auth.models import User
-from .models import Umbrella
-from .serializers import UmbrellaSerializer, UserSerializer
-
-
-class UmbrellaViewSet(viewsets.ModelViewSet):
-    queryset = Umbrella.objects.all()
-    serializer_class = UmbrellaSerializer
+from .models import Umbrella, Rent
+from .serializers import UmbrellaSerializer, RentSerializer
+from django.utils import timezone
+import json
 
 
 @api_view(['POST'])
@@ -29,8 +25,10 @@ def lend_umbrella(request, umbrella_number):
         profile.umbrella = umbrella
         profile.save()
 
-        serializer = UserSerializer(user)
-        return Response(serializer.data, status = status.HTTP_200_OK)
+        rent_serializer = RentSerializer(data = {'user': user.id, 'umbrella': umbrella.id})
+        if rent_serializer.is_valid():
+            rent_serializer.save()
+            return Response({'message': 'Umbrella lent successfully.'}, status = status.HTTP_200_OK)
     else:
         return Response({'error': 'User has an umbrella already.'}, status = status.HTTP_400_BAD_REQUEST)
 
@@ -39,16 +37,20 @@ def lend_umbrella(request, umbrella_number):
 def return_umbrella(request):
     user = request.user
     profile = user.profile
-
+    data = json.loads(request.body)
+    location = data.get('location')
     if profile.umbrella:
         umbrella = profile.umbrella
         umbrella.is_available = True
+        umbrella.location = location
         umbrella.save()
 
         profile.umbrella = None
         profile.save()
 
-        serializer = UserSerializer(user)
-        return Response(serializer.data, status = status.HTTP_200_OK)
+        rent = Rent.objects.get(umbrella = umbrella.number, user = user.id, return_date = None)
+        rent.return_date = timezone.now()
+        rent.save()
+        return Response({'message': 'Umbrella returned successfully.'}, status = status.HTTP_200_OK)
     else:
         return Response({'error': 'User does not have an umbrella to return.'}, status = status.HTTP_400_BAD_REQUEST)
