@@ -1,8 +1,9 @@
 #users/models.py
 from django.db import models
 from django.contrib.auth.models import User
-from django.db.models.signals import post_save
-from django.dispatch import receiver
+from umbrella.models import Umbrella
+# from django.db.models.signals import post_save
+# from django.dispatch import receiver
 
 class Profile(models.Model):
     
@@ -11,6 +12,7 @@ class Profile(models.Model):
     studentID = models.IntegerField(default = 0, unique = True)
     studentCard = models.ImageField(upload_to = 'media/')
     phoneNumber = models.CharField(max_length = 20)
+    umbrella = models.OneToOneField(Umbrella, related_name = 'user', null = True, blank = True, on_delete = models.SET_NULL)
 
     # @receiver(post_save, sender = User)
     # def create_student_profile(sender, instance, created, **kwargs):
