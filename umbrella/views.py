@@ -8,6 +8,12 @@ from django.utils import timezone
 import json
 
 
+@api_view(['GET'])
+def get_available_umbrellas(request):
+    num = Umbrella.objects.all().filter(is_available = True).count()
+    return Response({'available_num': num}, status = status.HTTP_200_OK)
+
+
 @api_view(['POST'])
 def lend_umbrella(request, umbrella_number):
     user = request.user
