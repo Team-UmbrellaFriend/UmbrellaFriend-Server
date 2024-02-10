@@ -45,7 +45,7 @@ class Rent(models.Model):
         # 대여 기간을 저장하기 전에 계산
         if self.return_date:
             period = self.return_date - self.rent_date
-            self.rental_period = f'{period.days + 1}일간'
+            self.rental_period = f'{period.days + 1}일간 대여'
         else:
             self.rental_period = None
 
