@@ -8,18 +8,23 @@ class Umbrella(models.Model):
     number = models.IntegerField(unique = True)
     is_available = models.BooleanField(default = True)
 
-    place = [
-        ('명신관', '명신관'),
-        ('순헌관', '순헌관'),
-        ('학생회관', '학생회관'),
-        ('도서관', '도서관')
-    ]
+    place = {
+        '명신관': 1,
+        '순헌관': 2,
+        '학생회관': 3,
+        '도서관': 4,
+        '음대': 5,
+        '백주년기념관': 6,
+    }
     
     location = models.CharField(
         max_length = 20,
         choices = place,
-        default = '도서관'
+        default = 4
     )
+    
+    def get_location_id(self, location):
+        return int(self.place.get(location, 0))
 
     def __str__(self):
         return f'[{self.number}] Umbrella'
