@@ -5,7 +5,21 @@ from rest_framework.response import Response
 from .models import Umbrella, Rent
 from .serializers import UmbrellaSerializer, RentSerializer
 from django.utils import timezone
+from datetime import timedelta
+from django.db.models import Count
 import json
+
+
+@api_view(['GET'])
+def get_available_umbrellas(request):
+    location_counts = Umbrella.objects.filter(is_available = True).values('location').annotate(num_umbrellas = Count('id'))
+
+    result_list = []
+    for location_count in location_counts:
+        location_id = Umbrella().get_location_id(location_count['location'])
+        result_list.append({'location_id': location_id, 'num_umbrellas': location_count['num_umbrellas']})
+
+    return Response(result_list, status = status.HTTP_200_OK)
 
 
 @api_view(['POST'])
@@ -54,3 +68,12 @@ def return_umbrella(request):
         return Response({'message': 'Umbrella returned successfully.'}, status = status.HTTP_200_OK)
     else:
         return Response({'error': 'User does not have an umbrella to return.'}, status = status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
+def rent_history_last_7_days(request):
+    user = request.user
+    seven_days_ago = timezone.now() - timedelta(days = 7)
+    rent_history = Rent.objects.filter(user = user, rent_date__gte = seven_days_ago)
+    serializer = RentSerializer(rent_history, many = True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
