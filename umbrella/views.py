@@ -86,7 +86,7 @@ def get_days_remaining(request):
         }
         return Response(response_data, status = status.HTTP_200_OK)
     else:
-        return Response({'message': 'No data'}, status = status.HTTP_400_BAD_REQUEST)
+        return Response({'is_overdue': 'False', 'overdue_days': 0,'days_remaining': 0 }, status = status.HTTP_200_OK)
 
 
 @api_view(['GET'])
