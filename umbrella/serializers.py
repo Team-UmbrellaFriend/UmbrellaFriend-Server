@@ -17,7 +17,9 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class RentSerializer(serializers.ModelSerializer):
-    rent_date = serializers.DateTimeField(format = "%Y년%m월%d일")
+    rent_date = serializers.DateTimeField(format = "%Y년%m월%d일", read_only=True)
+    rental_period = serializers.CharField(max_length=10, read_only=True)
+
     class Meta:
         model = Rent
-        fields = ['rental_period', 'rent_date']
+        fields = ['user', 'umbrella', 'rental_period', 'rent_date']
