@@ -4,8 +4,8 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import Umbrella, Rent
 from .serializers import UmbrellaSerializer, RentSerializer
+from datetime import *
 from django.utils import timezone
-from datetime import timedelta
 from django.db.models import Count
 import json
 
@@ -18,7 +18,7 @@ def get_available_umbrellas(request):
     for location_count in location_counts:
         location_id = Umbrella().get_location_id(location_count['location'])
         result_list.append({'location_id': location_id, 'num_umbrellas': location_count['num_umbrellas']})
-
+        result_list = sorted(result_list, key = lambda x: x["location_id"])
     return Response(result_list, status = status.HTTP_200_OK)
 
 
@@ -68,6 +68,25 @@ def return_umbrella(request):
         return Response({'message': 'Umbrella returned successfully.'}, status = status.HTTP_200_OK)
     else:
         return Response({'error': 'User does not have an umbrella to return.'}, status = status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
+def get_days_remaining(request):
+    user = request.user
+    rent = Rent.objects.filter(user = user, return_date = None).first()
+
+    if rent and rent.return_due_date:
+        is_overdue = datetime.now() > rent.return_due_date
+        overdue_days = max(0, (datetime.now() - rent.return_due_date).days + 1) if is_overdue else 0
+
+        response_data = {
+            'is_overdue': is_overdue,
+            'overdue_days': overdue_days,
+            'days_remaining': max(0, (rent.return_due_date - datetime.now()).days + 1)
+        }
+        return Response(response_data, status = status.HTTP_200_OK)
+    else:
+        return Response({'is_overdue': 'False', 'overdue_days': 0,'days_remaining': 0 }, status = status.HTTP_200_OK)
 
 
 @api_view(['GET'])

@@ -7,5 +7,6 @@ urlpatterns = [
     path('available/', get_available_umbrellas),
     path('<int:umbrella_number>/lend/', lend_umbrella),
     path('return/', return_umbrella),
+    path('remain/', get_days_remaining),
     path('history/', rent_history_last_7_days),
 ]
