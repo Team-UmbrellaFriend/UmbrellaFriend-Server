@@ -36,9 +36,20 @@ class Rent(models.Model):
     rent_date = models.DateTimeField(default = timezone.now) # 대여 날짜
     return_date = models.DateTimeField(null = True, blank = True) # 반납 날짜
     return_due_date = models.DateTimeField(default = timezone.now() + timezone.timedelta(days = 3)) # 반납 기한
+    rental_period = models.CharField(max_length = 10, null = True, blank = True) # 대여 기간
 
     def is_overdue(self):
         return timezone.now() > self.return_due_date
+
+    def save(self, *args, **kwargs):
+        # 대여 기간을 저장하기 전에 계산
+        if self.return_date:
+            period = self.return_date - self.rent_date
+            self.rental_period = f'{period.days + 1}일간'
+        else:
+            self.rental_period = None
+
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f'[{self.user}] {self.umbrella}'
