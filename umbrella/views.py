@@ -10,8 +10,9 @@ import json
 
 @api_view(['GET'])
 def get_available_umbrellas(request):
+    all = Umbrella.objects.all().count()
     num = Umbrella.objects.all().filter(is_available = True).count()
-    return Response({'available_num': num}, status = status.HTTP_200_OK)
+    return Response({'all_num': all, 'available_num': num}, status = status.HTTP_200_OK)
 
 
 @api_view(['POST'])
