@@ -76,4 +76,4 @@ def rent_history_last_7_days(request):
     seven_days_ago = timezone.now() - timedelta(days = 7)
     rent_history = Rent.objects.filter(user = user, rent_date__gte = seven_days_ago)
     serializer = RentSerializer(rent_history, many = True)
-    return Response(serializer.data)
+    return Response(serializer.data, status=status.HTTP_200_OK)
