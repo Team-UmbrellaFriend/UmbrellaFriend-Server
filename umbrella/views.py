@@ -18,7 +18,7 @@ def get_available_umbrellas(request):
     for location_count in location_counts:
         location_id = Umbrella().get_location_id(location_count['location'])
         result_list.append({'location_id': location_id, 'num_umbrellas': location_count['num_umbrellas']})
-
+        result_list = sorted(result_list, key = lambda x: x["location_id"])
     return Response(result_list, status = status.HTTP_200_OK)
 
 
