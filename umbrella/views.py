@@ -5,14 +5,20 @@ from rest_framework.response import Response
 from .models import Umbrella, Rent
 from .serializers import UmbrellaSerializer, RentSerializer
 from django.utils import timezone
+from django.db.models import Count
 import json
 
 
 @api_view(['GET'])
 def get_available_umbrellas(request):
-    all = Umbrella.objects.all().count()
-    num = Umbrella.objects.all().filter(is_available = True).count()
-    return Response({'all_num': all, 'available_num': num}, status = status.HTTP_200_OK)
+    location_counts = Umbrella.objects.filter(is_available = True).values('location').annotate(num_umbrellas = Count('id'))
+
+    result_list = []
+    for location_count in location_counts:
+        location_id = Umbrella().get_location_id(location_count['location'])
+        result_list.append({'location_id': location_id, 'num_umbrellas': location_count['num_umbrellas']})
+
+    return Response(result_list, status = status.HTTP_200_OK)
 
 
 @api_view(['POST'])
