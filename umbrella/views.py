@@ -68,12 +68,3 @@ def return_umbrella(request):
         return Response({'message': 'Umbrella returned successfully.'}, status = status.HTTP_200_OK)
     else:
         return Response({'error': 'User does not have an umbrella to return.'}, status = status.HTTP_400_BAD_REQUEST)
-
-
-@api_view(['GET'])
-def rent_history_last_7_days(request):
-    user = request.user
-    seven_days_ago = timezone.now() - timedelta(days = 7)
-    rent_history = Rent.objects.filter(user = user, rent_date__gte = seven_days_ago)
-    serializer = RentSerializer(rent_history, many = True)
-    return Response(serializer.data, status=status.HTTP_200_OK)
