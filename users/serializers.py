@@ -62,7 +62,8 @@ class SignUpSerializer(serializers.ModelSerializer):
             studentCard = profile_data.get('studentCard', None),
             phoneNumber = profile_data.get('phoneNumber', None),
         )
-        return user
+        token = Token.objects.create(user = user)
+        return {'token': token.key}
 
 
 # 로그인
