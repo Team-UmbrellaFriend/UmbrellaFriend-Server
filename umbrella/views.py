@@ -47,6 +47,21 @@ def lend_umbrella(request, umbrella_number):
         return Response({'error': 'User has an umbrella already.'}, status = status.HTTP_400_BAD_REQUEST)
 
 
+@api_view(['GET'])
+def check_umbrella(request, umbrella_number):
+    user = request.user
+    profile = user.profile
+    now = timezone.now()
+    three_days_later = now + timezone.timedelta(days = 3)
+    check_data = {
+        'umbrella_num': umbrella_number,
+        'username': user.username,
+        'studentID': profile.studentID,
+        'date': now.strftime("%Y/%m/%d") + "~" + three_days_later.strftime("%Y/%m/%d")
+    }
+    return Response(check_data, status = status.HTTP_200_OK)
+
+
 @api_view(['POST'])
 def return_umbrella(request):
     user = request.user
