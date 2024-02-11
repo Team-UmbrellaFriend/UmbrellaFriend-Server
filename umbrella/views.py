@@ -3,7 +3,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import Umbrella, Rent
-from .serializers import UmbrellaSerializer, RentSerializer
+from .serializers import RentSerializer
 from datetime import *
 from django.utils import timezone
 from django.db.models import Count
