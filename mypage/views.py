@@ -21,17 +21,18 @@ class MyPageView(APIView):
         user = request.user
         profile = Profile.objects.get(user = user) 
 
-        myuser_serializer = MyUserSerializer(user)
-        myprofile_serializer = MyProfileSerializer(profile)
+        myuser = MyUserSerializer(user)
+        myprofile = MyProfileSerializer(profile)
         history = rent_history_last_7_days(request)
         if not history:
             history = '아직 내역이 없어요'
         mypage_data = {
             'user': {
-                'username': myuser_serializer.data['username'],
-                'studentID': myprofile_serializer.data['studentID'],
-                'phoneNumber': myprofile_serializer.data['phoneNumber'],
-                'email': myuser_serializer.data['email'],
+                'id': myuser.data['id'],
+                'username': myuser.data['username'],
+                'studentID': myprofile.data['studentID'],
+                'phoneNumber': myprofile.data['phoneNumber'],
+                'email': myuser.data['email'],
             },
             'history': history,
         }

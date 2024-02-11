@@ -31,7 +31,10 @@ class HomeView(APIView):
         days_remaining = get_days_remaining(request)
         weather_data = get_rain_percent(request)
         home_data = {
-            'username': user.username,
+            'user': {
+                'id': user.id,
+                'username': user.username,
+            },
             'weather': weather_data,
             'd-day': days_remaining,
         }
