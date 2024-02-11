@@ -20,7 +20,6 @@ def load_api_key(filename="secrets.json"):
         return None
 
 
-@api_view(['GET'])
 def get_rain_percent(request):
     url = "http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst"
     queryString = "?" + urlencode(
@@ -47,6 +46,6 @@ def get_rain_percent(request):
                 result = item
                 break
         date = datetime.today().strftime("%Y") + "년" + datetime.today().strftime("%m") + "월" + datetime.today().strftime("%d") + "일"
-        return Response({"date": date, "percent": result.get("fcstValue")}, status = status.HTTP_200_OK)
-    except json.JSONDecodeError:
-        return Response({'error': 'Empty response'}, status = status.HTTP_400_BAD_REQUEST)
+        return {"date": date, "percent": result.get("fcstValue")}
+    except (json.JSONDecodeError, ValueError):
+        return {'error': 'Empty response'}
