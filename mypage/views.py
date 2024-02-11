@@ -24,7 +24,8 @@ class MyPageView(APIView):
         myuser_serializer = MyUserSerializer(user)
         myprofile_serializer = MyProfileSerializer(profile)
         history = rent_history_last_7_days(request)
-        print(history)
+        if not history:
+            history = '아직 내역이 없어요'
         mypage_data = {
             'user': {
                 'username': myuser_serializer.data['username'],
