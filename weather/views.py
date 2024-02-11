@@ -37,13 +37,16 @@ def get_rain_percent(request):
     )
     queryURL = url + queryString
     response = requests.get(queryURL)
-    r_dict = json.loads(response.text)
-    r_item = r_dict.get("response").get("body").get("items").get("item")
+    try:
+        r_dict = json.loads(response.text)
+        r_item = r_dict.get("response").get("body").get("items").get("item")
 
-    result = {}
-    for item in r_item:
-        if(item.get("category") == "POP"): # 강수 확률
-            result = item
-            break
-
-    return Response({"percent": result.get("fcstValue")}, status = status.HTTP_200_OK)
+        result = {}
+        for item in r_item:
+            if(item.get("category") == "POP"): # 강수 확률
+                result = item
+                break
+        date = datetime.today().strftime("%Y") + "년" + datetime.today().strftime("%m") + "월" + datetime.today().strftime("%d") + "일"
+        return Response({"date": date, "percent": result.get("fcstValue")}, status = status.HTTP_200_OK)
+    except json.JSONDecodeError:
+        return Response({'error': 'Empty response'}, status = status.HTTP_400_BAD_REQUEST)
