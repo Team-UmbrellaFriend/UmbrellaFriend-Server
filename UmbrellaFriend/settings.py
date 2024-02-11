@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'weather',
     'umbrella',
     'home',
+    'mypage',
 ]
 
 MIDDLEWARE = [
