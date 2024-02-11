@@ -1,11 +1,9 @@
 #home/views.py
 from rest_framework.views import APIView
-from umbrella.models import Umbrella, Rent
-from rest_framework.decorators import api_view
+from umbrella.models import Rent
 from rest_framework.response import Response
 from rest_framework import status
 from datetime import *
-from django.utils import timezone
 from weather.views import get_rain_percent
 
 
