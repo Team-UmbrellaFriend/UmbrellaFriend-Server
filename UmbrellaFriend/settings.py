@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'users',
     'weather',
     'umbrella',
+    'home',
 ]
 
 MIDDLEWARE = [
