@@ -71,25 +71,6 @@ def return_umbrella(request):
 
 
 @api_view(['GET'])
-def get_days_remaining(request):
-    user = request.user
-    rent = Rent.objects.filter(user = user, return_date = None).first()
-
-    if rent and rent.return_due_date:
-        is_overdue = datetime.now() > rent.return_due_date
-        overdue_days = max(0, (datetime.now() - rent.return_due_date).days + 1) if is_overdue else 0
-
-        response_data = {
-            'is_overdue': is_overdue,
-            'overdue_days': overdue_days,
-            'days_remaining': max(0, (rent.return_due_date - datetime.now()).days + 1)
-        }
-        return Response(response_data, status = status.HTTP_200_OK)
-    else:
-        return Response({'is_overdue': 'False', 'overdue_days': 0,'days_remaining': 0 }, status = status.HTTP_200_OK)
-
-
-@api_view(['GET'])
 def rent_history_last_7_days(request):
     user = request.user
     seven_days_ago = timezone.now() - timedelta(days = 7)
