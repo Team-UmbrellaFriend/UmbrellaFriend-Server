@@ -21,4 +21,4 @@ class MyRentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Rent
-        fields = ['rental_period', 'rent_date']
+        fields = ('rental_period', 'rent_date')
