@@ -15,11 +15,15 @@ def get_available_umbrellas(request):
     location_counts = Umbrella.objects.filter(is_available = True).values('location').annotate(num_umbrellas = Count('id'))
 
     result_list = []
-    for location_count in location_counts:
-        location_id = Umbrella().get_location_id(location_count['location'])
-        result_list.append({'location_id': location_id, 'num_umbrellas': location_count['num_umbrellas']})
-        result_list = sorted(result_list, key = lambda x: x["location_id"])
-    return Response(result_list, status = status.HTTP_200_OK)
+    for location_id in range(1, 7):
+        matching_location = next((lc for lc in location_counts if Umbrella().get_location_id(lc['location']) == location_id), None)
+
+        if matching_location:
+            result_list.append({'location_id': location_id, 'num_umbrellas': matching_location['num_umbrellas']})
+        else:
+            result_list.append({'location_id': location_id, 'num_umbrellas': 0})
+
+    return Response(result_list, status=status.HTTP_200_OK)
 
 
 @api_view(['POST'])
