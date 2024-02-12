@@ -31,14 +31,18 @@ class HomeView(APIView):
         days_remaining = get_days_remaining(request)
         weather_data = get_rain_percent(request)
         home_data = {
-            'user': {
-                'id': user.id,
-                'username': user.username,
-            },
-            'weather': weather_data,
-            'd-day': days_remaining,
+            'status': status.HTTP_200_OK,
+            'message': '응답 성공',
+            'data': {
+                'user': {
+                    'id': user.id,
+                    'username': user.username,
+                },
+                'weather': weather_data,
+                'd-day': days_remaining,
+            }
         }
-        if weather_data['date']:
-            return Response(home_data, status = status.HTTP_200_OK)
-        else:
-            return Response(home_data, status = status.HTTP_400_BAD_REQUEST)
+        if not weather_data['date']:
+            home_data['status'] = status.HTTP_400_BAD_REQUEST
+            home_data['message'] = '응답 실패'
+        return Response(home_data, status = home_data['status'])
