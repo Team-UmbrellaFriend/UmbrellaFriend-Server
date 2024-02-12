@@ -31,6 +31,26 @@ def get_available_umbrellas(request):
     return Response(available_data, status = available_data['status'])
 
 
+@api_view(['GET'])
+def check_umbrella(request, umbrella_number):
+    user = request.user
+    profile = user.profile
+    now = timezone.now()
+    three_days_later = now + timezone.timedelta(days = 3)
+
+    check_data = {
+        'status': status.HTTP_200_OK,
+        'message': '응답 성공',
+        'data': {
+            'umbrella_num': umbrella_number,
+            'username': user.username,
+            'studentID': profile.studentID,
+            'date': now.strftime("%Y/%m/%d") + "~" + three_days_later.strftime("%Y/%m/%d")
+        }
+    }
+    return Response(check_data, status = check_data['status'])
+
+
 @api_view(['POST'])
 def lend_umbrella(request, umbrella_number):
     user = request.user
@@ -60,35 +80,6 @@ def lend_umbrella(request, umbrella_number):
             lend_data['status'] = status.HTTP_200_OK
             lend_data['message'] = '우산을 대여했습니다'
     return Response(lend_data, status = lend_data['status'])
-
-
-@api_view(['GET'])
-def check_umbrella(request, umbrella_number):
-    user = request.user
-
-    try:
-        umbrella = Umbrella.objects.get(number = umbrella_number)
-    except Umbrella.DoesNotExist:
-        return Response({'status': status.HTTP_404_NOT_FOUND, 'message': f'우산 {umbrella_number}는 존재하지 않습니다', 'data':''}, status = status.HTTP_404_NOT_FOUND)
-
-    if not umbrella.is_available:
-        return Response({'status': status.HTTP_400_BAD_REQUEST, 'message': f'우산 {umbrella_number}는 대여할 수 없습니다', 'data':''}, status = status.HTTP_400_BAD_REQUEST)
-
-    profile = user.profile
-    now = timezone.now()
-    three_days_later = now + timezone.timedelta(days = 3)
-
-    check_data = {
-        'status': status.HTTP_200_OK,
-        'message': '응답 성공',
-        'data': {
-            'umbrella_num': umbrella_number,
-            'username': user.username,
-            'studentID': profile.studentID,
-            'date': now.strftime("%Y/%m/%d") + "~" + three_days_later.strftime("%Y/%m/%d")
-        }
-    }
-    return Response(check_data, status = check_data['status'])
 
 
 @api_view(['POST'])
