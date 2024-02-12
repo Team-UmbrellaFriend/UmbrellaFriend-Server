@@ -11,4 +11,11 @@ def custom_exception_handler(exc, context):
         custom_response = {'status': status.HTTP_401_UNAUTHORIZED, 'message': '인증되지 않았습니다', 'data': None}
         return Response(custom_response, status=status.HTTP_401_UNAUTHORIZED)
 
+    if response is not None:
+        custom_data = {
+            'status': response.status_code,
+            'message': '로그인 실패',
+            'data': response.data
+        }
+        response.data = custom_data
     return response
