@@ -108,7 +108,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         email = data.get('email', None)
-        if email and User.objects.exclude(pk=self.instance.pk).filter(email = email).exists():
+        if email and User.objects.exclude(pk = self.instance.pk).filter(email = email).exists():
             raise serializers.ValidationError('This email is already in use.')
 
         password = data.get('password', None)
@@ -126,7 +126,6 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 
         profile = instance.profile
         if profile_data:
-            profile.studentID = profile_data.get('studentID', profile.studentID)
             profile.phoneNumber = profile_data.get('phoneNumber', profile.phoneNumber)
             profile.save()
         return instance
