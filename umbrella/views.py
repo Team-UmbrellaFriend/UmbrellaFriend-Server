@@ -54,6 +54,15 @@ def lend_umbrella(request, umbrella_number):
 @api_view(['GET'])
 def check_umbrella(request, umbrella_number):
     user = request.user
+
+    try:
+        umbrella = Umbrella.objects.get(number = umbrella_number)
+    except Umbrella.DoesNotExist:
+        return Response({'error': f'우산 {umbrella_number}는 존재하지 않습니다'}, status = status.HTTP_404_NOT_FOUND)
+
+    if not umbrella.is_available:
+        return Response({'error': f'우산 {umbrella_number}는 대여할 수 없습니다'}, status = status.HTTP_400_BAD_REQUEST)
+
     profile = user.profile
     now = timezone.now()
     three_days_later = now + timezone.timedelta(days = 3)
