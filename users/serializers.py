@@ -113,8 +113,6 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 
         password = data.get('password', None)
         password2 = data.get('password2', None)
-        print(password)
-        print(password2)
         if password and password2 and password != password2:
             raise serializers.ValidationError('Passwords do not match.')
         return data
