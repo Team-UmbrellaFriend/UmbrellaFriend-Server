@@ -43,9 +43,11 @@ class Rent(models.Model):
 
     def save(self, *args, **kwargs):
         # 대여 기간을 저장하기 전에 계산
-        if self.return_date:
+        if self.rent_date and self.return_date:
             period = self.return_date - self.rent_date
             self.rental_period = f'{period.days + 1}일간 대여'
+        elif self.rent_date and not self.return_date:
+            self.rental_period = '대여중'
         else:
             self.rental_period = None
 

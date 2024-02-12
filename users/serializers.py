@@ -10,19 +10,18 @@ from django.contrib.auth import authenticate # DefautlAuthBackend인 TokenAuth �
 from .models import Profile
 
 
-# 프로필
-class ProfileSerializer(serializers.ModelSerializer):
+# 회원가입
+class SignUpProfileSerializer(serializers.ModelSerializer):
     user_id = serializers.CharField(source = 'user.id', read_only = True)
     class Meta:
         model = Profile
-        fields = ("user_id", "studentID", "studentCard", "phoneNumber")
+        fields = ('user_id', 'studentID', 'studentCard', 'phoneNumber')
 
 
-# 회원가입
 class SignUpSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(
         required = True,
-        validators = [UniqueValidator(queryset=User.objects.all())],
+        validators = [UniqueValidator(queryset = User.objects.all())],
     )
     password = serializers.CharField(
         write_only = True,
@@ -33,7 +32,7 @@ class SignUpSerializer(serializers.ModelSerializer):
         write_only = True,
         required = True,
     )
-    profile = ProfileSerializer()
+    profile = SignUpProfileSerializer()
 
     class Meta:
         model = User
@@ -50,7 +49,7 @@ class SignUpSerializer(serializers.ModelSerializer):
             username = validated_data['username'],
             email = validated_data['email'],
         )
-        # 유저 생성 및 토큰 생성
+        # 유저 생성
         user.set_password(validated_data['password'])
         user.save()
 
@@ -68,8 +67,8 @@ class SignUpSerializer(serializers.ModelSerializer):
 
 # 로그인
 class LoginSerializer(serializers.Serializer):
-    studentID = serializers.IntegerField(required=True)
-    password = serializers.CharField(required=True, write_only=True)
+    studentID = serializers.IntegerField(required = True)
+    password = serializers.CharField(required = True, write_only = True)
     # write_only=True 옵션을 통해 클라이언트 -> 서버의 역직렬화는 가능하지만, 서버 -> 클라이언트 방향의 직렬화는 불가능하게 함
 
     def validate(self, data):
@@ -82,3 +81,51 @@ class LoginSerializer(serializers.Serializer):
             return token
         raise serializers.ValidationError( # 가입된 유저가 없을 경우
             {"error": "Unable to log in with provided credentials."})
+
+
+# 프로필
+class ProfileUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profile
+        fields = ('studentID', 'phoneNumber')
+
+class UserUpdateSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(
+        write_only = True,
+        required = False,
+        validators = [validate_password],
+    )
+    password2 = serializers.CharField(
+        write_only = True,
+        required = False,
+    )
+    profile = ProfileUpdateSerializer(partial = True)
+
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'email', 'password', 'password2', 'profile')
+
+
+    def validate(self, data):
+        email = data.get('email', None)
+        if email and User.objects.exclude(pk = self.instance.pk).filter(email = email).exists():
+            raise serializers.ValidationError('This email is already in use.')
+
+        password = data.get('password', None)
+        password2 = data.get('password2', None)
+        if password and password2 and password != password2:
+            raise serializers.ValidationError('Passwords do not match.')
+        return data
+
+
+    def update(self, instance, validated_data):
+        profile_data = validated_data.pop('profile', {})
+        instance.email = validated_data.get('email', instance.email)
+        instance.set_password(validated_data.get('password', instance.password))
+        instance.save()
+
+        profile = instance.profile
+        if profile_data:
+            profile.phoneNumber = profile_data.get('phoneNumber', profile.phoneNumber)
+            profile.save()
+        return instance

@@ -1,12 +1,10 @@
 #users/views.py
-from django.shortcuts import render
 from django.contrib.auth.models import User
 from rest_framework import generics, status
 from rest_framework.response import Response
-
-from .serializers import SignUpSerializer, LoginSerializer, ProfileSerializer
-from .models import Profile
-from .permissions import CustomReadOnly
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from .serializers import SignUpSerializer, LoginSerializer, UserUpdateSerializer
 
 class SignUpView(generics.CreateAPIView):
     queryset = User.objects.all()
@@ -36,7 +34,19 @@ class LogoutView(generics.GenericAPIView):
         return Response(status = status.HTTP_200_OK)
 
 
-class ProfileView(generics.RetrieveUpdateAPIView):
-    queryset = Profile.objects.all()
-    serializer_class = ProfileSerializer
-    permission_classes = [CustomReadOnly]
+class ProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        serializer = UserUpdateSerializer(user)
+        return Response(serializer.data, status = status.HTTP_200_OK)
+
+    def put(self, request, *args, **kwargs):
+        user = request.user
+        serializer = UserUpdateSerializer(user, data = request.data, partial = True)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status = status.HTTP_200_OK)
+        return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)

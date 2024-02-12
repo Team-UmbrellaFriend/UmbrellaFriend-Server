@@ -24,7 +24,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('users/', include('users.urls')),
     path('umbrella/', include('umbrella.urls')),
-    path('weather/', include('weather.urls')),
+    path('home/', include('home.urls')),
+    path('mypage/', include('mypage.urls')),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)
