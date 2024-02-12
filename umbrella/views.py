@@ -23,7 +23,7 @@ def get_available_umbrellas(request):
         else:
             result_list.append({'location_id': location_id, 'num_umbrellas': 0})
 
-    return Response(result_list, status=status.HTTP_200_OK)
+    return Response(result_list, status = status.HTTP_200_OK)
 
 
 @api_view(['POST'])
@@ -33,7 +33,7 @@ def lend_umbrella(request, umbrella_number):
     try:
         umbrella = Umbrella.objects.get(number = umbrella_number, is_available = True)
     except Umbrella.DoesNotExist:
-        return Response({'error': f'Umbrella {umbrella_number} is not available for lending.'}, status = status.HTTP_400_BAD_REQUEST)
+        return Response({'error': f'우산 {umbrella_number}는 대여할 수 없습니다'}, status = status.HTTP_400_BAD_REQUEST)
 
     profile = user.profile
     if profile.umbrella is None:
@@ -46,9 +46,9 @@ def lend_umbrella(request, umbrella_number):
         rent_serializer = RentSerializer(data = {'user': user.id, 'umbrella': umbrella.id})
         if rent_serializer.is_valid():
             rent_serializer.save()
-            return Response({'message': 'Umbrella lent successfully.'}, status = status.HTTP_200_OK)
+            return Response({'message': '우산을 대여했습니다'}, status = status.HTTP_200_OK)
     else:
-        return Response({'error': 'User has an umbrella already.'}, status = status.HTTP_400_BAD_REQUEST)
+        return Response({'error': '대여 중인 우산을 반납하고 시도해주세요'}, status = status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET'])
@@ -84,6 +84,6 @@ def return_umbrella(request):
         rent = Rent.objects.get(umbrella = umbrella.number, user = user.id, return_date = None)
         rent.return_date = timezone.now()
         rent.save()
-        return Response({'message': 'Umbrella returned successfully.'}, status = status.HTTP_200_OK)
+        return Response({'message': '우산을 반납했습니다'}, status = status.HTTP_200_OK)
     else:
-        return Response({'error': 'User does not have an umbrella to return.'}, status = status.HTTP_400_BAD_REQUEST)
+        return Response({'error': '반납할 우산이 없습니다'}, status = status.HTTP_400_BAD_REQUEST)
