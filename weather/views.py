@@ -1,6 +1,6 @@
 #weather/views.py
 from urllib.parse import urlencode
-from datetime import datetime
+from datetime import datetime, timedelta
 import requests, json
 
 
@@ -17,7 +17,25 @@ def load_api_key(filename="secrets.json"):
         return None
 
 
+def calculate_base_date_and_time():
+    current_time = datetime.now()
+    base_times = ["0200", "0500", "0800", "1100", "1400", "1700", "2000", "2300"]
+
+    for base_time in base_times:
+        if current_time.hour < int(base_time[:2]):
+            base_date = (current_time - timedelta(days = (1 if base_time == "0200" else 0))).strftime("%Y%m%d")
+            base_time = "2300" if base_time == "0200" else base_times[base_times.index(base_time) - 1]
+            break
+    else:
+        base_time = "2300"
+        base_date = current_time.strftime("%Y%m%d")
+
+    return current_time, base_date, base_time
+
+
 def get_rain_percent(request):
+    current_time, base_date, base_time = calculate_base_date_and_time()
+
     url = "http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst"
     queryString = "?" + urlencode(
         {
@@ -25,8 +43,8 @@ def get_rain_percent(request):
         "pageNo": 1,
         "numOfRows": 10,
         "dataType": "JSON",
-        "base_date": datetime.today().strftime("%Y%m%d"),
-        "base_time": "0500",
+        "base_date": base_date,
+        "base_time": base_time,
         "nx": 60,   # 청파동 위치 좌표 (nx, ny)
         "ny": 125,
         }
@@ -34,7 +52,8 @@ def get_rain_percent(request):
     queryURL = url + queryString
     response = requests.get(queryURL)
 
-    date = datetime.today().strftime("%Y") + "년" + datetime.today().strftime("%m") + "월" + datetime.today().strftime("%d") + "일"
+    date = current_time.strftime("%Y") + "년" + current_time.strftime("%m") + "월" + current_time.strftime("%d") + "일"
+
     try:
         r_dict = json.loads(response.text)
         r_response = r_dict.get("response", {})
