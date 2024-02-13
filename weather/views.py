@@ -33,16 +33,23 @@ def get_rain_percent(request):
     )
     queryURL = url + queryString
     response = requests.get(queryURL)
+
+    date = datetime.today().strftime("%Y") + "년" + datetime.today().strftime("%m") + "월" + datetime.today().strftime("%d") + "일"
     try:
         r_dict = json.loads(response.text)
-        r_item = r_dict.get("response").get("body").get("items").get("item")
+        r_response = r_dict.get("response", {})
+        r_body = r_response.get("body", {})
+        r_items = r_body.get("items", {})
+        r_item = r_items.get("item", None)
 
         result = {}
-        for item in r_item:
-            if(item.get("category") == "POP"): # 강수 확률
-                result = item
-                break
-        date = datetime.today().strftime("%Y") + "년" + datetime.today().strftime("%m") + "월" + datetime.today().strftime("%d") + "일"
-        return {"date": date, "percent": result.get("fcstValue")}
+        if r_item:
+            for item in r_item:
+                if(item.get("category") == "POP"): # 강수 확률
+                    result = item
+                    break
+            return {"date": date, "percent": result.get("fcstValue")}
+        else:
+            return {'date': date, 'percent': -1}
     except (json.JSONDecodeError, ValueError):
         return {'date': date, 'percent': -1}
