@@ -27,13 +27,17 @@ class MyPageView(APIView):
         if not history:
             history = '아직 내역이 없어요'
         mypage_data = {
-            'user': {
-                'id': myuser.data['id'],
-                'username': myuser.data['username'],
-                'studentID': myprofile.data['studentID'],
-                'phoneNumber': myprofile.data['phoneNumber'],
-                'email': myuser.data['email'],
-            },
-            'history': history,
+            'status': status.HTTP_200_OK,
+            'message': '응답 성공',
+            'data': {
+                'user': {
+                    'id': myuser.data['id'],
+                    'username': myuser.data['username'],
+                    'studentID': myprofile.data['studentID'],
+                    'phoneNumber': myprofile.data['phoneNumber'],
+                    'email': myuser.data['email'],
+                },
+                'history': history,
+            }
         }
-        return Response(mypage_data, status = status.HTTP_200_OK)
+        return Response(mypage_data, status = mypage_data['status'])

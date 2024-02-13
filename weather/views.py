@@ -45,4 +45,4 @@ def get_rain_percent(request):
         date = datetime.today().strftime("%Y") + "년" + datetime.today().strftime("%m") + "월" + datetime.today().strftime("%d") + "일"
         return {"date": date, "percent": result.get("fcstValue")}
     except (json.JSONDecodeError, ValueError):
-        return {'error': 'Empty response'}
+        return {'date': date, 'percent': -1}
