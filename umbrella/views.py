@@ -86,7 +86,7 @@ def lend_umbrella(request, umbrella_number):
 def return_umbrella(request):
     user = request.user
     profile = user.profile
-    data = json.loads(request.body)
+    data = request.data
     location = data.get('location')
 
     return_data = {
@@ -108,6 +108,7 @@ def return_umbrella(request):
 
         rent = Rent.objects.get(umbrella = umbrella.number, user = user.id, return_date = None)
         rent.return_date = timezone.now()
+        rent.image = data.get('return_image')
         rent.save()
     else:
         return_data['status'] = status.HTTP_400_BAD_REQUEST
