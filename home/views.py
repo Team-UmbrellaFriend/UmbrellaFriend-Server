@@ -18,7 +18,7 @@ def get_days_remaining(request):
         response_data = {
             'is_overdue': is_overdue,
             'overdue_days': overdue_days,
-            'days_remaining': max(0, (rent.return_due_date - datetime.now()).days + 1)
+            'days_remaining': max(0, (rent.return_due_date - datetime.now()).days)
         }
         return response_data
     else:
