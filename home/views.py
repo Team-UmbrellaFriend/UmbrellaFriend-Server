@@ -12,7 +12,7 @@ def get_days_remaining(request):
     rent = Rent.objects.filter(user = user, return_date = None).first()
 
     if rent and rent.return_due_date:
-        is_overdue = datetime.now() > rent.return_due_date
+        is_overdue = rent.is_overdue()
         overdue_days = max(0, (datetime.now() - rent.return_due_date).days + 1) if is_overdue else 0
 
         response_data = {

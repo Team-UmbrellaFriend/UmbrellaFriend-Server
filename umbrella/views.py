@@ -86,7 +86,7 @@ def lend_umbrella(request, umbrella_number):
 def return_umbrella(request):
     user = request.user
     profile = user.profile
-    data = json.loads(request.body)
+    data = request.data
     location = data.get('location')
 
     return_data = {
@@ -99,6 +99,9 @@ def return_umbrella(request):
         umbrella = profile.umbrella
         if umbrella.get_location_id(location) not in umbrella.place.values():
             return Response({'status': status.HTTP_400_BAD_REQUEST, 'message': '유효하지 않은 장소입니다', 'data':''}, status = status.HTTP_400_BAD_REQUEST)
+        return_image = data.get('return_image')
+        if not return_image :
+            return Response({'status': status.HTTP_400_BAD_REQUEST, 'message': '인증 사진이 없습니다', 'data':''}, status = status.HTTP_400_BAD_REQUEST)
         umbrella.is_available = True
         umbrella.location = location
         umbrella.save()
@@ -108,6 +111,7 @@ def return_umbrella(request):
 
         rent = Rent.objects.get(umbrella = umbrella.number, user = user.id, return_date = None)
         rent.return_date = timezone.now()
+        rent.image = return_image
         rent.save()
     else:
         return_data['status'] = status.HTTP_400_BAD_REQUEST
