@@ -7,7 +7,6 @@ from .serializers import RentSerializer
 from datetime import *
 from django.utils import timezone
 from django.db.models import Count
-import json
 
 
 @api_view(['GET'])
