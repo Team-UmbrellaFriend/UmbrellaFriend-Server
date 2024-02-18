@@ -124,6 +124,21 @@ REST_FRAMEWORK = {
     'EXCEPTION_HANDLER': 'common.exception_handler.custom_exception_handler',
 }
 
+
+# 이메일 백엔드 설정
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+# SMTP 서버 설정 (Gmail 사용])
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
+
+# 이메일 계정 정보
+EMAIL_HOST_USER = 'umbrellafriend.sookmyung@gmail.com'
+EMAIL_HOST_PASSWORD = secrets.get('EMAIL_HOST_PASSWORD', '')
+
+
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
