@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'umbrella',
     'home',
     'mypage',
+    'django_crontab',
 ]
 
 MIDDLEWARE = [
