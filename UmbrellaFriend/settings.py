@@ -140,6 +140,11 @@ EMAIL_HOST_USER = 'umbrellafriend.sookmyung@gmail.com'
 EMAIL_HOST_PASSWORD = secrets.get('EMAIL_HOST_PASSWORD', '')
 
 
+CRONJOBS = [
+    ('0 0 * * *', 'home.cron.send_return_reminder_email', '>> /tmp/scheduled_job.log'),
+]
+
+
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
