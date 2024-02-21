@@ -13,7 +13,6 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 from pathlib import Path
 import os
 import json
-import sys
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -55,6 +54,7 @@ INSTALLED_APPS = [
     'umbrella',
     'home',
     'mypage',
+    'django_crontab',
 ]
 
 MIDDLEWARE = [
@@ -123,6 +123,26 @@ REST_FRAMEWORK = {
     ],
     'EXCEPTION_HANDLER': 'common.exception_handler.custom_exception_handler',
 }
+
+
+# 이메일 백엔드 설정
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+# SMTP 서버 설정 (Gmail 사용])
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
+
+# 이메일 계정 정보
+EMAIL_HOST_USER = 'umbrellafriend.sookmyung@gmail.com'
+EMAIL_HOST_PASSWORD = secrets.get('EMAIL_HOST_PASSWORD', '')
+
+
+CRONJOBS = [
+    ('0 0 * * *', 'home.cron.send_return_reminder_email', '>> /tmp/scheduled_job.log'),
+]
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
