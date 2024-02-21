@@ -22,7 +22,7 @@ def get_days_remaining(request):
         }
         return response_data
     else:
-        return {'is_overdue': 'False', 'overdue_days': 0,'days_remaining': 0}
+        return {'is_overdue': False, 'overdue_days': -1,'days_remaining': -1}
 
 
 class HomeView(APIView):
