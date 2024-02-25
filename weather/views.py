@@ -52,15 +52,7 @@ def get_rain_percent(request):
     queryURL = url + queryString
     response = requests.get(queryURL)
 
-    year = current_time.strftime("%Y")
-    month = current_time.strftime("%-m")
-    day = current_time.strftime("%-d")
-
-    date = {
-        "year": year,
-        "month": month,
-        "day": day
-    }
+    date = current_time.strftime("%Y") + "년 " + current_time.strftime("%m") + "월 " + current_time.strftime("%d") + "일"
 
     try:
         r_dict = json.loads(response.text)
