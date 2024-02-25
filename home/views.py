@@ -34,9 +34,9 @@ class HomeView(APIView):
         percent_value = int(weather_data['percent']) if weather_data['percent'].isdigit() else -1
         weather_message = ''
         if days_remaining.get('is_overdue') == False and days_remaining.get('days_remaining') != -1:
-            weather_message = f'우산 반납일까지 {days_remaining.get('days_remaining')}일 남았습니다!'
+            weather_message = f'우산 반납일까지 { days_remaining["days_remaining"] }일 남았습니다!'
         elif days_remaining.get('is_overdue') == True:
-            weather_message = f'연체로 인해 {abs(days_remaining.get('overdue_days'))}일간 대여가 불가능합니다.'
+            weather_message = f'연체로 인해 {abs(days_remaining["overdue_days"])}일간 대여가 불가능합니다.'
         elif 0 <= percent_value <= 20:
             weather_message = '오늘은 비가 올 확률이 적네요!'
         elif 20 < percent_value <= 60:
