@@ -12,15 +12,24 @@ from django.db.models import Count
 @api_view(['GET'])
 def get_available_umbrellas(request):
     location_counts = Umbrella.objects.filter(is_available = True).values('location').annotate(num_umbrellas = Count('id'))
+    location_mapping = {
+        1: '명신관',
+        2: '순헌관',
+        3: '학생회관',
+        4: '도서관',
+        5: '음대',
+        6: '백주년기념관',
+    }
 
     result_list = []
     for location_id in range(1, 7):
         matching_location = next((lc for lc in location_counts if Umbrella().get_location_id(lc['location']) == location_id), None)
+        location_name = location_mapping.get(location_id, '장소 없음')
 
         if matching_location:
-            result_list.append({'location_id': location_id, 'num_umbrellas': matching_location['num_umbrellas']})
+            result_list.append({'location_id': location_id, 'location_name': location_name, 'num_umbrellas': matching_location['num_umbrellas']})
         else:
-            result_list.append({'location_id': location_id, 'num_umbrellas': 0})
+            result_list.append({'location_id': location_id, 'location_name': location_name, 'num_umbrellas': 0})
 
         available_data = {
             'status': status.HTTP_200_OK,
