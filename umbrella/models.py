@@ -35,7 +35,7 @@ class Rent(models.Model):
     umbrella = models.ForeignKey(Umbrella, on_delete = models.CASCADE)
     rent_date = models.DateTimeField(default = timezone.now) # 대여 날짜
     return_date = models.DateTimeField(null = True, blank = True) # 반납 날짜
-    return_due_date = models.DateTimeField(default = timezone.now() + timezone.timedelta(days = 3)) # 반납 기한
+    return_due_date = models.DateTimeField(default = lambda: timezone.now() + timezone.timedelta(days = 3)) # 반납 기한
     rental_period = models.CharField(max_length = 10, null = True, blank = True) # 대여 기간
     image = models.ImageField(upload_to = 'rent_images/')
 
