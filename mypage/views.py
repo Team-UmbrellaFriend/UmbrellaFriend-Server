@@ -24,6 +24,9 @@ class MyPageView(APIView):
         myuser = MyUserSerializer(user)
         myprofile = MyProfileSerializer(profile)
         history = rent_history_last_7_days(request)
+
+        formatted_phone_number = self.format_phone_number(myprofile.data['phoneNumber'])
+
         if not history:
             history = '아직 내역이 없어요'
         mypage_data = {
@@ -34,10 +37,15 @@ class MyPageView(APIView):
                     'id': myuser.data['id'],
                     'username': myuser.data['username'],
                     'studentID': myprofile.data['studentID'],
-                    'phoneNumber': myprofile.data['phoneNumber'],
+                    'phoneNumber': formatted_phone_number,
                     'email': myuser.data['email'],
                 },
                 'history': history,
             }
         }
         return Response(mypage_data, status = mypage_data['status'])
+
+
+    def format_phone_number(self, raw_phone_number):
+        formatted_phone_number = f'{raw_phone_number[:3]}-{raw_phone_number[3:7]}-{raw_phone_number[7:]}'
+        return formatted_phone_number
