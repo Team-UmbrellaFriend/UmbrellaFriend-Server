@@ -27,8 +27,6 @@ class MyPageView(APIView):
 
         formatted_phone_number = self.format_phone_number(myprofile.data['phoneNumber'])
 
-        if not history:
-            history = '아직 내역이 없어요'
         mypage_data = {
             'status': status.HTTP_200_OK,
             'message': '응답 성공',
