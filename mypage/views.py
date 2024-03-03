@@ -11,7 +11,7 @@ from django.utils import timezone
 def rent_history_last_7_days(request):
     user = request.user
     seven_days_ago = timezone.now() - timedelta(days = 7)
-    rent_history = Rent.objects.filter(user = user, rent_date__gte = seven_days_ago)
+    rent_history = Rent.objects.filter(user = user, rent_date__gte = seven_days_ago).order_by('-rent_date')
     serializer = MyRentSerializer(rent_history, many = True)
     return serializer.data
 
