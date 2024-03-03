@@ -7,6 +7,12 @@ from .serializers import RentSerializer
 from datetime import *
 from django.utils import timezone
 from django.db.models import Count
+from django.core.exceptions import ObjectDoesNotExist
+import logging
+
+
+logging.basicConfig(level=logging.ERROR)
+logger = logging.getLogger(__name__)
 
 
 @api_view(['GET'])
@@ -110,6 +116,13 @@ def return_umbrella(request):
         return_image = data.get('return_image')
         if not return_image :
             return Response({'status': status.HTTP_400_BAD_REQUEST, 'message': '인증 사진이 없습니다', 'data':''}, status = status.HTTP_400_BAD_REQUEST)
+        try:
+            rent = Rent.objects.get(umbrella=umbrella.number, user=user.id, return_date=None)
+        except ObjectDoesNotExist:
+            logger.error("대여 중인 우산 정보를 찾을 수 없습니다. Umbrella: %s, User: %s", umbrella.number, user.id)
+        except Rent.MultipleObjectsReturned:
+            logger.error("대여 중인 우산 정보가 여러 개입니다. Umbrella: %s, User: %s", umbrella.number, user.id)
+        
         umbrella.is_available = True
         umbrella.location = location
         umbrella.save()
@@ -117,7 +130,6 @@ def return_umbrella(request):
         profile.umbrella = None
         profile.save()
 
-        rent = Rent.objects.get(umbrella = umbrella.number, user = user.id, return_date = None)
         rent.return_date = timezone.now()
         rent.image = return_image
         rent.save()
