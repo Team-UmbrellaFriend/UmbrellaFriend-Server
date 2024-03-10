@@ -67,8 +67,9 @@ def get_rain_percent(request):
                 if(item.get("category") == "POP"): # 강수 확률
                     result = item
                     break
-            return {"date": date, "percent": result.get("fcstValue")}
+        if isinstance(result, dict) and "fcstValue" in result:
+            return {"date": date, "percent": result["fcstValue"]}
         else:
             return {'date': date, 'percent': -1}
-    except (json.JSONDecodeError, ValueError):
+    except json.JSONDecodeError:
         return {'date': date, 'percent': -1}

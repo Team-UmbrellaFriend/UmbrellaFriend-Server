@@ -31,7 +31,7 @@ class HomeView(APIView):
         days_remaining = get_days_remaining(request)
         weather_data = get_rain_percent(request)
 
-        percent_value = int(weather_data['percent']) if weather_data['percent'].isdigit() else -1
+        percent_value = int(weather_data['percent']) if weather_data['percent'] and weather_data['percent'].isdigit() else -1
         weather_message = ''
         if days_remaining.get('is_overdue') == False and days_remaining.get('days_remaining') != -1:
             weather_message = f'우산 반납일까지 { days_remaining["days_remaining"] }일 남았습니다!'
