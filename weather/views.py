@@ -70,6 +70,6 @@ def get_rain_percent(request):
         if isinstance(result, dict) and "fcstValue" in result:
             return {"date": date, "percent": result["fcstValue"]}
         else:
-            return {'date': date, 'percent': -1}
+            return {'date': date, 'percent': "-1"}
     except json.JSONDecodeError:
-        return {'date': date, 'percent': -1}
+        return {'date': date, 'percent': "-1"}
