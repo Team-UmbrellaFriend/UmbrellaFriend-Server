@@ -5,11 +5,20 @@ from rest_framework.response import Response
 from rest_framework import status
 from datetime import *
 from weather.views import get_rain_percent
+from django.utils import timezone
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 def get_days_remaining(request):
     user = request.user
     rent = Rent.objects.filter(user = user, return_date = None).first()
+    overdue_rent = Rent.objects.filter(user = user, return_date__isnull = False, is_disabled = True).first()
+    if overdue_rent:
+        overdue_period = int(overdue_rent.rental_period.split('일간')[0])
+
 
     if rent and rent.return_due_date:
         is_overdue = rent.is_overdue()
@@ -19,6 +28,37 @@ def get_days_remaining(request):
             'is_overdue': is_overdue,
             'overdue_days': overdue_days,
             'days_remaining': max(0, (rent.return_due_date - datetime.now()).days)
+        }
+        return response_data
+    elif overdue_rent and overdue_period > 3:
+        # 대여 중이 아니지만 이전에 연체된 기록이 있는 경우 해당 정보를 반환
+
+        current_date = timezone.now()
+        return_date = overdue_rent.return_date
+
+        initial_overdue_days = overdue_period
+        overdue_days = initial_overdue_days - (current_date - return_date).days
+
+        logger.info("initial_overdue_days: %s", initial_overdue_days)
+        logger.info("difference: %s", current_date - return_date)
+        logger.info('-------')
+        logger.info("User: %s", overdue_rent.user)
+        logger.info("Umbrella: %s", overdue_rent.umbrella)
+        logger.info("Rent Date: %s", overdue_rent.rent_date)
+        logger.info("Return Date: %s", overdue_rent.return_date)
+        logger.info("Return Due Date: %s", overdue_rent.return_due_date)
+        logger.info("Rental Period: %s", overdue_rent.rental_period)
+
+        if overdue_days < 0:
+            overdue_rent.is_disabled = False
+            overdue_rent.flag_save()
+            logger.info("is_disabled: %s", overdue_rent.is_disabled)
+            return {'is_overdue': False, 'overdue_days': -1,'days_remaining': -1}
+        
+        response_data = {
+            'is_overdue': True,
+            'overdue_days': overdue_days,
+            'days_remaining': 0
         }
         return response_data
     else:
@@ -31,7 +71,7 @@ class HomeView(APIView):
         days_remaining = get_days_remaining(request)
         weather_data = get_rain_percent(request)
 
-        percent_value = int(weather_data['percent']) if weather_data['percent'] and weather_data['percent'].isdigit() else -1
+        percent_value = int(weather_data['percent']) if isinstance(weather_data['percent'], str) and weather_data['percent'].isdigit() else -1
         weather_message = ''
         if days_remaining.get('is_overdue') == False and days_remaining.get('days_remaining') != -1:
             weather_message = f'우산 반납일까지 { days_remaining["days_remaining"] }일 남았습니다!'
