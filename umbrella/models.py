@@ -38,6 +38,7 @@ class Rent(models.Model):
     return_due_date = models.DateTimeField(default = lambda: timezone.now() + timezone.timedelta(days = 3)) # 반납 기한
     rental_period = models.CharField(max_length = 10, null = True, blank = True) # 대여 기간
     image = models.ImageField(upload_to = 'rent_images/')
+    is_disabled = models.BooleanField(default = False)  # 대여 비활성화 플래그
 
     def is_overdue(self):
         return timezone.now() > self.return_due_date
@@ -52,6 +53,11 @@ class Rent(models.Model):
         else:
             self.rental_period = None
 
+        if self.is_overdue():
+            self.is_disabled = True
+        super().save(*args, **kwargs)
+
+    def flag_save(self, *args, **kwargs):
         super().save(*args, **kwargs)
 
     def __str__(self):
