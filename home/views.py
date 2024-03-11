@@ -36,7 +36,7 @@ def get_days_remaining(request):
         current_date = timezone.now()
         return_date = overdue_rent.return_date
 
-        initial_overdue_days = overdue_period
+        initial_overdue_days = overdue_period - 3
         overdue_days = initial_overdue_days - (current_date - return_date).days
 
         logger.info("initial_overdue_days: %s", initial_overdue_days)
