@@ -74,6 +74,11 @@ def lend_umbrella(request, umbrella_number):
     except Umbrella.DoesNotExist:
         return Response({'status': status.HTTP_400_BAD_REQUEST, 'message': f'우산 {umbrella_number}는 대여할 수 없습니다', 'data': ''}, status = status.HTTP_400_BAD_REQUEST)
 
+
+    user_rents = Rent.objects.filter(user = user)
+    if user_rents.filter(is_disabled = True).exists():
+        return Response({'status': status.HTTP_400_BAD_REQUEST, 'message': '연체된 사용자는 대여할 수 없습니다', 'data': ''}, status=status.HTTP_400_BAD_REQUEST)
+    
     lend_data = {
         'status': status.HTTP_400_BAD_REQUEST,
         'message': '대여 중인 우산을 반납하고 시도해주세요',
