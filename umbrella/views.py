@@ -142,3 +142,23 @@ def return_umbrella(request):
         return_data['status'] = status.HTTP_400_BAD_REQUEST
         return_data['message'] = '반납할 우산이 없습니다'
     return Response(return_data, status = return_data['status'])
+
+
+@api_view(['GET'])
+def extend_return_due_date(request):
+    user = request.user
+
+    try:
+        rent = Rent.objects.get(user = user, return_date__isnull = True)
+    except Rent.DoesNotExist:
+        return Response({'status': status.HTTP_400_BAD_REQUEST, 'message': '대여 중인 우산 정보를 찾을 수 없습니다', 'data':''}, status = status.HTTP_400_BAD_REQUEST)
+
+    if rent.is_overdue():
+        return Response({'status': status.HTTP_400_BAD_REQUEST, 'message': '연체된 사용자는 연장할 수 없습니다', 'data':''}, status = status.HTTP_400_BAD_REQUEST)
+
+    if rent.extension_count == 0:
+        rent.extension_count += 1
+        rent.return_due_date += timezone.timedelta(days=3)
+        rent.save()
+
+    return Response({'status': status.HTTP_200_OK, 'message': '대여 연장 성공', 'data': {'extension_count' : rent.extension_count}}, status = status.HTTP_200_OK)
