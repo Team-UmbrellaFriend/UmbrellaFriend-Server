@@ -39,6 +39,7 @@ class Rent(models.Model):
     rental_period = models.CharField(max_length = 10, null = True, blank = True) # 대여 기간
     image = models.ImageField(upload_to = 'rent_images/')
     is_disabled = models.BooleanField(default = False)  # 대여 비활성화 플래그
+    extension_count = models.IntegerField(default = 0)  # 대여 연장 횟수
 
     def is_overdue(self):
         return timezone.now() > self.return_due_date
