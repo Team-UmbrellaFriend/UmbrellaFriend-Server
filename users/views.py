@@ -1,13 +1,13 @@
 #users/views.py
-from django.contrib.auth.models import User
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from .serializers import SignUpSerializer, LoginSerializer, UserUpdateSerializer
+from .models import CustomUser
 
 class SignUpView(generics.CreateAPIView):
-    queryset = User.objects.all()
+    queryset = CustomUser.objects.all()
     serializer_class = SignUpSerializer
 
     def post(self, request):

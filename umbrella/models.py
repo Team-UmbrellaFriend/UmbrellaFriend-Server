@@ -1,6 +1,6 @@
 #umbrella/models.py
 from django.db import models
-from django.contrib.auth.models import User
+from django.conf import settings
 from django.utils import timezone
 
 
@@ -32,7 +32,7 @@ class Umbrella(models.Model):
 
 
 class Rent(models.Model):
-    user = models.ForeignKey(User, on_delete = models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete = models.CASCADE)
     umbrella = models.ForeignKey(Umbrella, on_delete = models.CASCADE)
     rent_date = models.DateTimeField(default = timezone.now) # 대여 날짜
     return_date = models.DateTimeField(null = True, blank = True) # 반납 날짜
