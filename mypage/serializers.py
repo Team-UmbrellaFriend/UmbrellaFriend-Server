@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 from users.models import Profile
 from umbrella.models import Rent
+from .models import UmbrellaReport
 
 class MyUserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -22,3 +23,9 @@ class MyRentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Rent
         fields = ('rental_period', 'rent_date')
+
+
+class ReportSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UmbrellaReport
+        fields = ('user', 'umbrella', 'report_reason', 'description')

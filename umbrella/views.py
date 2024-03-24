@@ -70,7 +70,7 @@ def lend_umbrella(request, umbrella_number):
     user = request.user
 
     try:
-        umbrella = Umbrella.objects.get(number = umbrella_number, is_available = True)
+        umbrella = Umbrella.objects.get(number = umbrella_number, is_available = True, has_issue = False)
     except Umbrella.DoesNotExist:
         return Response({'status': status.HTTP_400_BAD_REQUEST, 'message': f'우산 {umbrella_number}는 대여할 수 없습니다', 'data': ''}, status = status.HTTP_400_BAD_REQUEST)
 
