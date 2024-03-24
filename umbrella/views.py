@@ -165,5 +165,6 @@ def extend_return_due_date(request):
         rent.extension_count += 1
         rent.return_due_date += timezone.timedelta(days=3)
         rent.save()
-
-    return Response({'status': status.HTTP_200_OK, 'message': '대여 연장 성공', 'data': {'extension_count' : rent.extension_count}}, status = status.HTTP_200_OK)
+        return Response({'status': status.HTTP_200_OK, 'message': '대여 연장 성공', 'data': {'extension_count' : rent.extension_count}}, status = status.HTTP_200_OK)
+    else:
+        return Response({'status': status.HTTP_400_BAD_REQUEST, 'message': '대여 연장은 한 번만 가능합니다', 'data': ''}, status = status.HTTP_400_BAD_REQUEST)
