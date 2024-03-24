@@ -1,5 +1,4 @@
 #users/serializers.py
-from django.contrib.auth.models import User # User 모델
 from django.contrib.auth.password_validation import validate_password # Django의 pw 검증 도구
 
 from rest_framework import serializers
@@ -7,8 +6,7 @@ from rest_framework.authtoken.models import Token # Token 모델
 from rest_framework.validators import UniqueValidator # 이메일 중복 방지를 위한 검증 도구
 
 from django.contrib.auth import authenticate # DefautlAuthBackend인 TokenAuth 방식으로 유저 인증
-from .models import Profile
-
+from .models import Profile, CustomUser
 
 # 회원가입
 class SignUpProfileSerializer(serializers.ModelSerializer):
@@ -21,7 +19,7 @@ class SignUpProfileSerializer(serializers.ModelSerializer):
 class SignUpSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(
         required = True,
-        validators = [UniqueValidator(queryset = User.objects.all())],
+        validators = [UniqueValidator(queryset = CustomUser.objects.all())],
     )
     password = serializers.CharField(
         write_only = True,
@@ -35,7 +33,7 @@ class SignUpSerializer(serializers.ModelSerializer):
     profile = SignUpProfileSerializer()
 
     class Meta:
-        model = User
+        model = CustomUser
         fields = ('id', 'username', 'email', 'password', 'password2', 'profile')
 
     def validate(self, data):
@@ -45,7 +43,7 @@ class SignUpSerializer(serializers.ModelSerializer):
         return data
 
     def create(self, validated_data): # 오버라이딩
-        user = User.objects.create_user(
+        user = CustomUser.objects.create_user(
             username = validated_data['username'],
             email = validated_data['email'],
         )
@@ -102,13 +100,13 @@ class UserUpdateSerializer(serializers.ModelSerializer):
     profile = ProfileUpdateSerializer(partial = True)
 
     class Meta:
-        model = User
+        model = CustomUser
         fields = ('id', 'username', 'email', 'password', 'password2', 'profile')
 
 
     def validate(self, data):
         email = data.get('email', None)
-        if email and User.objects.exclude(pk = self.instance.pk).filter(email = email).exists():
+        if email and CustomUser.objects.exclude(pk = self.instance.pk).filter(email = email).exists():
             raise serializers.ValidationError('This email is already in use.')
 
         password = data.get('password', None)

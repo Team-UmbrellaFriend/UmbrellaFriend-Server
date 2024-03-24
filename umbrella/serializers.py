@@ -1,12 +1,12 @@
 #umbrella/serializers.py
 from rest_framework import serializers
-from .models import Umbrella, Rent
-from django.contrib.auth.models import User
+from .models import Rent
+from users.models import CustomUser
 
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = User
+        model = CustomUser
         fields = '__all__'
 
 

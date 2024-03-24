@@ -1,13 +1,12 @@
 #mypage/serializers.py
-from django.contrib.auth.models import User
 from rest_framework import serializers
-from users.models import Profile
+from users.models import Profile, CustomUser
 from umbrella.models import Rent
 from .models import UmbrellaReport
 
 class MyUserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = User
+        model = CustomUser
         fields = ('id', 'username', 'email')
 
 class MyProfileSerializer(serializers.ModelSerializer):

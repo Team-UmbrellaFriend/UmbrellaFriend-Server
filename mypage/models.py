@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.conf import settings
 from umbrella.models import Umbrella
 
 
@@ -12,8 +12,8 @@ class UmbrellaReport(models.Model):
     )
 
     umbrella = models.ForeignKey(Umbrella, on_delete = models.CASCADE)
-    user = models.ForeignKey(User, on_delete = models.CASCADE)
-    report_reason = models.CharField(max_length=10, choices = REPORT_CHOICES)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete = models.CASCADE)
+    report_reason = models.CharField(max_length = 10, choices = REPORT_CHOICES)
     description = models.TextField(max_length = 200, blank = True, null = True)
     is_done = models.BooleanField(default = False)
 
