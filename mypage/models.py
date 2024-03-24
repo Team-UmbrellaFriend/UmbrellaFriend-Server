@@ -15,6 +15,10 @@ class UmbrellaReport(models.Model):
     user = models.ForeignKey(User, on_delete = models.CASCADE)
     report_reason = models.CharField(max_length=10, choices = REPORT_CHOICES)
     description = models.TextField(max_length = 200, blank = True, null = True)
+    is_done = models.BooleanField(default = False)
 
     def __str__(self):
-        return f'[{self.user.username}] 우산[{self.umbrella.number}] {self.report_reason}'
+        if self.is_done:
+            return f'[{self.user.username}] 우산{self.umbrella.number} {self.report_reason} - 해결완료(O)'
+        else:
+            return f'[{self.user.username}] 우산{self.umbrella.number} {self.report_reason} - 해결안됨(X)'
