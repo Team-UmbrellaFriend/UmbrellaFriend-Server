@@ -4,4 +4,5 @@ from .views import MyPageView
 
 urlpatterns = [
     path('', MyPageView.as_view()),
+    path('report/', report_umbrella),
 ]
