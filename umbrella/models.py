@@ -7,6 +7,7 @@ from django.utils import timezone
 class Umbrella(models.Model):
     number = models.IntegerField(unique = True)
     is_available = models.BooleanField(default = True)
+    has_issue = models.BooleanField(default = False)
 
     place = {
         '명신관': 1,
