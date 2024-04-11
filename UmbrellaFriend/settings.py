@@ -179,7 +179,7 @@ LOGGING = {
     'disable_existing_loggers': False,
     'formatters': {
         'verbose': {
-            'format': '{asctime}s [{levelname}] [{module}] {lineno} - {message}',
+            'format': '{asctime} [{levelname}] [{name}] {lineno} - {message}',
             'style': '{',
         },
         'simple': {
