@@ -201,5 +201,10 @@ LOGGING = {
             'level': 'INFO',
             'propagate': True,
         },
+        'weather.views': {
+            'handlers': ['file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
     },
 }
