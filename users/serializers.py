@@ -13,7 +13,7 @@ class SignUpProfileSerializer(serializers.ModelSerializer):
     user_id = serializers.CharField(source = 'user.id', read_only = True)
     class Meta:
         model = Profile
-        fields = ('user_id', 'studentID', 'studentCard', 'phoneNumber')
+        fields = ('user_id', 'studentID', 'studentCard', 'phoneNumber', 'fcm_token')
 
 
 class SignUpSerializer(serializers.ModelSerializer):
@@ -31,10 +31,11 @@ class SignUpSerializer(serializers.ModelSerializer):
         required = True,
     )
     profile = SignUpProfileSerializer()
+    fcm_token = serializers.CharField(allow_blank=True, required=False)
 
     class Meta:
         model = CustomUser
-        fields = ('id', 'username', 'email', 'password', 'password2', 'profile')
+        fields = ('id', 'username', 'email', 'password', 'password2', 'profile', 'fcm_token')
 
     def validate(self, data):
         if (data['password'] != data['password2']):
@@ -43,6 +44,7 @@ class SignUpSerializer(serializers.ModelSerializer):
         return data
 
     def create(self, validated_data): # 오버라이딩
+        fcm_token = validated_data.pop('fcm_token', None)
         user = CustomUser.objects.create_user(
             username = validated_data['username'],
             email = validated_data['email'],
@@ -58,6 +60,7 @@ class SignUpSerializer(serializers.ModelSerializer):
             studentID = profile_data.get('studentID'),
             studentCard = profile_data.get('studentCard', None),
             phoneNumber = profile_data.get('phoneNumber', None),
+            fcm_token = fcm_token
         )
         token = Token.objects.create(user = user)
         return {'token': token.key}
@@ -67,15 +70,20 @@ class SignUpSerializer(serializers.ModelSerializer):
 class LoginSerializer(serializers.Serializer):
     studentID = serializers.IntegerField(required = True)
     password = serializers.CharField(required = True, write_only = True)
+    fcm_token = serializers.CharField(allow_blank=True, required=False)
     # write_only=True 옵션을 통해 클라이언트 -> 서버의 역직렬화는 가능하지만, 서버 -> 클라이언트 방향의 직렬화는 불가능하게 함
 
     def validate(self, data):
         studentID = data.get('studentID')
         password = data.get('password')
+        fcm_token = data.get('fcm_token')
 
         user = authenticate(studentID = studentID, password = password)
         if user:
             token, is_created = Token.objects.get_or_create(user = user)
+            if fcm_token:
+                user.profile.fcm_token = fcm_token
+                user.profile.save()
             return token
         raise serializers.ValidationError( # 가입된 유저가 없을 경우
             {"error": "Unable to log in with provided credentials."})
