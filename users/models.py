@@ -19,3 +19,4 @@ class Profile(models.Model):
     studentCard = models.ImageField(upload_to = f'profile')
     phoneNumber = models.CharField(max_length = 20)
     umbrella = models.OneToOneField(Umbrella, related_name = 'user', null = True, blank = True, on_delete = models.SET_NULL)
+    fcm_token = models.CharField(max_length = 200, blank = True, null = True)
