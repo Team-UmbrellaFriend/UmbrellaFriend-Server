@@ -40,7 +40,7 @@ class SignUpSerializer(serializers.ModelSerializer):
     def validate(self, data):
         if (data['password'] != data['password2']):
             raise serializers.ValidationError(
-                {"password": "Password fields did not match."})
+                {"password": "비밀번호가 일치하지 않습니다."})
         return data
 
     def create(self, validated_data): # 오버라이딩
@@ -86,7 +86,7 @@ class LoginSerializer(serializers.Serializer):
                 user.profile.save()
             return token
         raise serializers.ValidationError( # 가입된 유저가 없을 경우
-            {"error": "Unable to log in with provided credentials."})
+            {"error": "가입된 유저가 없습니다."})
 
 
 # 프로필
@@ -115,12 +115,12 @@ class UserUpdateSerializer(serializers.ModelSerializer):
     def validate(self, data):
         email = data.get('email', None)
         if email and CustomUser.objects.exclude(pk = self.instance.pk).filter(email = email).exists():
-            raise serializers.ValidationError('This email is already in use.')
+            raise serializers.ValidationError('이미 사용 중인 이메일 주소입니다.')
 
         password = data.get('password', None)
         password2 = data.get('password2', None)
         if password and password2 and password != password2:
-            raise serializers.ValidationError('Passwords do not match.')
+            raise serializers.ValidationError('비밀번호가 일치하지 않습니다.')
         return data
 
 
