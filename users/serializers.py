@@ -6,6 +6,7 @@ from rest_framework.authtoken.models import Token # Token 모델
 from rest_framework.validators import UniqueValidator # 이메일 중복 방지를 위한 검증 도구
 
 from django.contrib.auth import authenticate # DefautlAuthBackend인 TokenAuth 방식으로 유저 인증
+from django.contrib.auth.models import update_last_login
 from .models import Profile, CustomUser
 
 # 회원가입
@@ -13,7 +14,7 @@ class SignUpProfileSerializer(serializers.ModelSerializer):
     user_id = serializers.CharField(source = 'user.id', read_only = True)
     class Meta:
         model = Profile
-        fields = ('user_id', 'studentID', 'studentCard', 'phoneNumber')
+        fields = ('user_id', 'studentID', 'studentCard', 'phoneNumber', 'fcm_token')
 
 
 class SignUpSerializer(serializers.ModelSerializer):
@@ -31,18 +32,20 @@ class SignUpSerializer(serializers.ModelSerializer):
         required = True,
     )
     profile = SignUpProfileSerializer()
+    fcm_token = serializers.CharField(allow_blank=True, required=False)
 
     class Meta:
         model = CustomUser
-        fields = ('id', 'username', 'email', 'password', 'password2', 'profile')
+        fields = ('id', 'username', 'email', 'password', 'password2', 'profile', 'fcm_token')
 
     def validate(self, data):
         if (data['password'] != data['password2']):
             raise serializers.ValidationError(
-                {"password": "Password fields did not match."})
+                {"password": "비밀번호가 일치하지 않습니다."})
         return data
 
     def create(self, validated_data): # 오버라이딩
+        fcm_token = validated_data.pop('fcm_token', None)
         user = CustomUser.objects.create_user(
             username = validated_data['username'],
             email = validated_data['email'],
@@ -58,6 +61,7 @@ class SignUpSerializer(serializers.ModelSerializer):
             studentID = profile_data.get('studentID'),
             studentCard = profile_data.get('studentCard', None),
             phoneNumber = profile_data.get('phoneNumber', None),
+            fcm_token = fcm_token
         )
         token = Token.objects.create(user = user)
         return {'token': token.key}
@@ -67,18 +71,24 @@ class SignUpSerializer(serializers.ModelSerializer):
 class LoginSerializer(serializers.Serializer):
     studentID = serializers.IntegerField(required = True)
     password = serializers.CharField(required = True, write_only = True)
+    fcm_token = serializers.CharField(allow_blank=True, required=False)
     # write_only=True 옵션을 통해 클라이언트 -> 서버의 역직렬화는 가능하지만, 서버 -> 클라이언트 방향의 직렬화는 불가능하게 함
 
     def validate(self, data):
         studentID = data.get('studentID')
         password = data.get('password')
+        fcm_token = data.get('fcm_token')
 
         user = authenticate(studentID = studentID, password = password)
         if user:
             token, is_created = Token.objects.get_or_create(user = user)
+            if fcm_token:
+                user.profile.fcm_token = fcm_token
+                user.profile.save()
+            update_last_login(None, user)
             return token
         raise serializers.ValidationError( # 가입된 유저가 없을 경우
-            {"error": "Unable to log in with provided credentials."})
+            {"error": "가입된 유저가 없습니다."})
 
 
 # 프로필
@@ -107,12 +117,12 @@ class UserUpdateSerializer(serializers.ModelSerializer):
     def validate(self, data):
         email = data.get('email', None)
         if email and CustomUser.objects.exclude(pk = self.instance.pk).filter(email = email).exists():
-            raise serializers.ValidationError('This email is already in use.')
+            raise serializers.ValidationError('이미 사용 중인 이메일 주소입니다.')
 
         password = data.get('password', None)
         password2 = data.get('password2', None)
         if password and password2 and password != password2:
-            raise serializers.ValidationError('Passwords do not match.')
+            raise serializers.ValidationError('비밀번호가 일치하지 않습니다.')
         return data
 
 
