@@ -6,6 +6,7 @@ from rest_framework.authtoken.models import Token # Token 모델
 from rest_framework.validators import UniqueValidator # 이메일 중복 방지를 위한 검증 도구
 
 from django.contrib.auth import authenticate # DefautlAuthBackend인 TokenAuth 방식으로 유저 인증
+from django.contrib.auth.models import update_last_login
 from .models import Profile, CustomUser
 
 # 회원가입
@@ -84,6 +85,7 @@ class LoginSerializer(serializers.Serializer):
             if fcm_token:
                 user.profile.fcm_token = fcm_token
                 user.profile.save()
+            update_last_login(None, user)
             return token
         raise serializers.ValidationError( # 가입된 유저가 없을 경우
             {"error": "가입된 유저가 없습니다."})
