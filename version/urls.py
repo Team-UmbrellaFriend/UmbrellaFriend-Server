@@ -4,5 +4,5 @@ from .views import *
 
 
 urlpatterns = [
-    path('get_version_info/', get_version_info),
+    path('version/info/', get_version_info),
 ]
