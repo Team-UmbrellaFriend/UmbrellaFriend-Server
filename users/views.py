@@ -18,7 +18,7 @@ class SignUpView(generics.CreateAPIView):
         else:
             errors = serializer.errors
             error_messages = {
-                "profile_studentID": "이미 존재하는 학생 ID입니다.",
+                "profile_studentID": "이미 존재하는 학번입니다.",
                 "email": "이미 등록된 이메일 주소입니다."
             }
             profile_error = None
