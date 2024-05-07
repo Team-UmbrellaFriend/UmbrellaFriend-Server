@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     'umbrella',
     'home',
     'mypage',
+    'version',
     'django_crontab',
 ]
 
