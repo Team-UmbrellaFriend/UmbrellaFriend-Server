@@ -26,6 +26,7 @@ urlpatterns = [
     path('umbrella/', include('umbrella.urls')),
     path('home/', include('home.urls')),
     path('mypage/', include('mypage.urls')),
+    path('version/', include('version.urls')),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)
