@@ -9,6 +9,9 @@ class CustomUser(AbstractUser):
     username = models.CharField(max_length = 10, unique = False)
     email = models.EmailField(unique = True)
     
+    USERNAME_FIELD = 'email'  # email 필드를 USERNAME_FIELD로 설정
+    REQUIRED_FIELDS = ['username']  # email을 제외한 필수 필드 목록
+    
     class Meta:
         swappable = 'AUTH_USER_MODEL'
 

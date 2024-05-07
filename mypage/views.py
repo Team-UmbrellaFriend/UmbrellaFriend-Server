@@ -65,7 +65,7 @@ def report_umbrella(request):
 
     if report_reason == '기타':
         if not description:
-            return Response({'status': status.HTTP_400_BAD_REQUEST, 'message': '기타 사유를 입력해주세요', 'data': ''}, status = status.HTTP_400_BAD_REQUEST)
+            return Response({'status': status.HTTP_400_BAD_REQUEST, 'message': '기타 사유를 입력해주세요.', 'data': ''}, status = status.HTTP_400_BAD_REQUEST)
 
     try:
         umbrella = Umbrella.objects.get(number = umbrella_number)
@@ -80,6 +80,6 @@ def report_umbrella(request):
         umbrella.has_issue = True
         umbrella.save()
 
-        return Response({'status': status.HTTP_201_CREATED, 'message': '우산 신고가 성공적으로 제출되었습니다', 'data': ''}, status = status.HTTP_201_CREATED)
+        return Response({'status': status.HTTP_201_CREATED, 'message': '우산 신고가 성공적으로 제출되었습니다.', 'data': ''}, status = status.HTTP_201_CREATED)
     else:
         return Response({'status': status.HTTP_400_BAD_REQUEST, 'message': '우산 신고 실패', 'data': ''}, status = status.HTTP_400_BAD_REQUEST)

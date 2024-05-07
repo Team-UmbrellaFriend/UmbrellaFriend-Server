@@ -156,15 +156,15 @@ def extend_return_due_date(request):
     try:
         rent = Rent.objects.get(user = user, return_date__isnull = True)
     except Rent.DoesNotExist:
-        return Response({'status': status.HTTP_400_BAD_REQUEST, 'message': '대여 중인 우산 정보를 찾을 수 없습니다', 'data':''}, status = status.HTTP_400_BAD_REQUEST)
+        return Response({'status': status.HTTP_400_BAD_REQUEST, 'message': '대여 중인 우산 정보를 찾을 수 없습니다.', 'data':''}, status = status.HTTP_400_BAD_REQUEST)
 
     if rent.is_overdue():
-        return Response({'status': status.HTTP_400_BAD_REQUEST, 'message': '연체된 사용자는 연장할 수 없습니다', 'data':''}, status = status.HTTP_400_BAD_REQUEST)
+        return Response({'status': status.HTTP_400_BAD_REQUEST, 'message': '연체된 사용자는 연장할 수 없습니다.', 'data':''}, status = status.HTTP_400_BAD_REQUEST)
 
     if rent.extension_count == 0:
         rent.extension_count += 1
         rent.return_due_date += timezone.timedelta(days=3)
         rent.save()
-        return Response({'status': status.HTTP_200_OK, 'message': '대여 연장 성공', 'data': {'extension_count' : rent.extension_count}}, status = status.HTTP_200_OK)
+        return Response({'status': status.HTTP_200_OK, 'message': '자동으로 3일이\n추가 연장되었습니다.', 'data': {'extension_count' : rent.extension_count}}, status = status.HTTP_200_OK)
     else:
-        return Response({'status': status.HTTP_400_BAD_REQUEST, 'message': '대여 연장은 한 번만 가능합니다', 'data': ''}, status = status.HTTP_400_BAD_REQUEST)
+        return Response({'status': status.HTTP_400_BAD_REQUEST, 'message': '대여 연장은 한 번만 가능합니다.', 'data': ''}, status = status.HTTP_400_BAD_REQUEST)

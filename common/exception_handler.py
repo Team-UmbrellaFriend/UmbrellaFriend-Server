@@ -14,8 +14,8 @@ def custom_exception_handler(exc, context):
     if response is not None:
         custom_data = {
             'status': response.status_code,
-            'message': '로그인 실패',
-            'data': response.data
+            'message': '로그인에 실패했습니다',
+            'data': ''
         }
         response.data = custom_data
     return response

@@ -14,11 +14,11 @@ class SignUpView(generics.CreateAPIView):
         serializer = self.get_serializer(data = request.data)
         if serializer.is_valid():
             user_data = serializer.save()
-            return Response({'status': status.HTTP_201_CREATED, 'message': '응답 성공', 'data': {'token': user_data['token']}}, status = status.HTTP_201_CREATED)
+            return Response({'status': status.HTTP_201_CREATED, 'message': '회원가입이 완료되었습니다', 'data': {'token': user_data['token']}}, status = status.HTTP_201_CREATED)
         else:
             errors = serializer.errors
             error_messages = {
-                "profile_studentID": "이미 존재하는 학생 ID입니다.",
+                "profile_studentID": "이미 존재하는 학번입니다.",
                 "email": "이미 등록된 이메일 주소입니다."
             }
             profile_error = None
@@ -51,7 +51,7 @@ class SignUpView(generics.CreateAPIView):
                 return Response({'status': 400, 'message': email_error, 'data': ''}, status = status.HTTP_400_BAD_REQUEST)
             if password_error:
                 return Response({'status': 400, 'message': password_error[0], 'data': ''}, status = status.HTTP_400_BAD_REQUEST)
-            return Response({'status': 400, 'message': '유효하지 않은 데이터입니다.', 'data': ''}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'status': 400, 'message': '복잡한 비밀번호로 설정해주세요.', 'data': ''}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class LoginView(generics.GenericAPIView):
@@ -61,14 +61,19 @@ class LoginView(generics.GenericAPIView):
         serializer = self.get_serializer(data = request.data)
         serializer.is_valid(raise_exception = True)
         token = serializer.validated_data # validate()의 리턴값인 token 받아오기
-        return Response({'status': status.HTTP_200_OK, 'message': '응답 성공', 'data': {'token': token.key}}, status = status.HTTP_200_OK)
+        return Response({'status': status.HTTP_200_OK, 'message': '로그인되었습니다', 'data': {'token': token.key}}, status = status.HTTP_200_OK)
 
 
 class LogoutView(generics.GenericAPIView):
     def get(self, request, format = None):
         request.user.auth_token.delete()
-        return Response(status = status.HTTP_204_NO_CONTENT)
 
+        logout_data = {
+            'status': status.HTTP_200_OK,
+            'message': '로그아웃되었습니다',
+            'data': ''
+        }
+        return Response(logout_data, status = logout_data['status'])
 
 class ProfileView(APIView):
     permission_classes = [IsAuthenticated]
@@ -85,7 +90,7 @@ class ProfileView(APIView):
 
         if serializer.is_valid():
             serializer.save()
-            return Response({'status': status.HTTP_200_OK, 'message': '응답 성공', 'data': serializer.data}, status = status.HTTP_200_OK)
+            return Response({'status': status.HTTP_200_OK, 'message': '프로필이 수정되었습니다', 'data': serializer.data}, status = status.HTTP_200_OK)
         else:
             errors = serializer.errors
             invalid_error = None
