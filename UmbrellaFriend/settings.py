@@ -215,5 +215,10 @@ LOGGING = {
             'level': 'INFO',
             'propagate': False,
         },
+        'users.views': {
+            'handlers': ['file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
     },
 }
