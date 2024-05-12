@@ -3,8 +3,16 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
-from .serializers import SignUpSerializer, LoginSerializer, UserUpdateSerializer
-from .models import CustomUser
+from .serializers import SignUpSerializer, LoginSerializer, UserUpdateSerializer, RecordSerializer
+from .models import CustomUser, WithdrawalRecord
+from umbrella.models import Rent
+from mypage.models import UmbrellaReport
+import logging
+
+
+logging.basicConfig(level=logging.ERROR)
+logger = logging.getLogger(__name__)
+
 
 class SignUpView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()
@@ -26,6 +34,7 @@ class SignUpView(generics.CreateAPIView):
             password_error = None
 
             for field, error in errors.items():
+                logger.error(f"field: [{field}] error: [{error}]")
                 if field == 'profile':
                     if not profile_error:
                         for sub_field, sub_error in error.items():
@@ -117,3 +126,50 @@ class ProfileView(APIView):
             if password_error:
                 return Response({'status': 400, 'message': password_error[0], 'data': ''}, status = status.HTTP_400_BAD_REQUEST)
             return Response({'status': 400, 'message': '유효하지 않은 데이터입니다.', 'data': ''}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class DeleteAccountView(generics.GenericAPIView):
+    permission_classes = [IsAuthenticated]
+
+
+    def delete(self, request):
+        try:
+            user = request.user
+
+            studentID = user.profile.studentID
+            withdrawal_reason = request.data.get('withdrawal_reason')
+            description = request.data.get('description')
+
+            valid_choices = [choice[0] for choice in WithdrawalRecord.REPORT_CHOICES] # choice[0] 각 튜플의 첫 번째 요소
+            if withdrawal_reason not in valid_choices:
+                return Response({'status': status.HTTP_400_BAD_REQUEST, 'message': '유효하지 않은 탈퇴 사유입니다.', 'data': ''}, status = status.HTTP_400_BAD_REQUEST)
+
+            if withdrawal_reason == '기타':
+                if not description:
+                    return Response({'status': status.HTTP_400_BAD_REQUEST, 'message': '기타 사유를 입력해주세요.', 'data': ''}, status = status.HTTP_400_BAD_REQUEST)
+            
+            if WithdrawalRecord.objects.filter(studentID = studentID).exists():
+                return Response({'status': status.HTTP_400_BAD_REQUEST, 'message': '중복된 학생 ID가 있어 회원탈퇴를 진행할 수 없습니다.', 'data': ''}, status=status.HTTP_400_BAD_REQUEST) 
+
+            # 대여한 우산이 있는지 확인
+            rented_umbrella = Rent.objects.filter(user = user, return_date = None).first()
+            if rented_umbrella:
+                return Response({'status': status.HTTP_400_BAD_REQUEST, 'message': '우산을 반납하지 않아 탈퇴할 수 없습니다.\n반납 후 다시 진행해 주세요!', 'data': ''}, status = status.HTTP_400_BAD_REQUEST)
+
+            # 회원과 관련된 Umbrella reports 데이터 조회
+            umbrella_reports = UmbrellaReport.objects.filter(user = user)
+            umbrella_reports.update(user = None)
+
+            record_data = {'studentID': studentID, 'withdrawal_reason': withdrawal_reason, 'description': description}
+            record_serializer = RecordSerializer(data = record_data)
+            if record_serializer.is_valid():
+                record_serializer.save()
+
+                # 회원 탈퇴
+                user.delete()
+                return Response({'status': status.HTTP_200_OK, 'message': '회원 탈퇴가 완료되었습니다.\n우산 대여가 필요하면 다시 찾아주세요!', 'data': ''}, status = status.HTTP_200_OK)
+            else:
+                return Response({'status': status.HTTP_400_BAD_REQUEST, 'message': '회원탈퇴 실패', 'data': ''}, status = status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            logger.error(f'회원탈퇴 오류: {e}', exc_info = True)
+            return Response({'status': status.HTTP_500_INTERNAL_SERVER_ERROR, 'message': '회원탈퇴 중 오류가 발생했습니다.\n다시 시도해주세요!', 'data': ''}, status = status.HTTP_500_INTERNAL_SERVER_ERROR)

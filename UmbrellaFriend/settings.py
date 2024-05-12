@@ -148,7 +148,8 @@ EMAIL_HOST_PASSWORD = secrets.get('EMAIL_HOST_PASSWORD', '')
 
 
 CRONJOBS = [
-    ('0 0 * * *', 'home.cron.send_return_reminder_email', '>> /tmp/scheduled_job.log'),
+    ('0 0 * * *', 'home.cron.send_return_reminders', '>> /tmp/email_push.log 2>&1'),
+    ('0 0 * * *', 'home.cron.delete_withdrawal_records', '>> /tmp/delete_withdrawal_record.log 2>&1'),
 ]
 
 
@@ -211,6 +212,11 @@ LOGGING = {
             'propagate': True,
         },
         'weather.views': {
+            'handlers': ['file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'users.views': {
             'handlers': ['file'],
             'level': 'INFO',
             'propagate': False,
