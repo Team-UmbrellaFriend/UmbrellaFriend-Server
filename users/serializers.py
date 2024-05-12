@@ -7,7 +7,7 @@ from rest_framework.validators import UniqueValidator # 이메일 중복 방지�
 
 from django.contrib.auth import authenticate # DefautlAuthBackend인 TokenAuth 방식으로 유저 인증
 from django.contrib.auth.models import update_last_login
-from .models import Profile, CustomUser
+from .models import Profile, CustomUser, WithdrawalRecord
 
 # 회원가입
 class SignUpProfileSerializer(serializers.ModelSerializer):
@@ -137,3 +137,11 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             profile.phoneNumber = profile_data.get('phoneNumber', profile.phoneNumber)
             profile.save()
         return instance
+
+
+
+# 회원탈퇴
+class RecordSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WithdrawalRecord
+        fields = ('studentID', 'withdrawal_reason', 'description', 'withdrawal_date')
